@@ -27,14 +27,14 @@ while True:
     # methods.run_algorithm(1, question, choices)
     # # 用选项在问题页面中计数出现词频方法
     # methods.run_algorithm(2, question, choices)
-
+    
     # 多线程
-    m1 = Thread(methods.run_algorithm(0, question, choices))
+    # m1 = Thread(methods.run_algorithm(0, question, choices))
     m2 = Thread(methods.run_algorithm(1, question, choices))
     m3 = Thread(methods.run_algorithm(2, question, choices))
-    m1.start()
-    m2.start()
+    # m1.start()
     m3.start()
+    m2.start()
 
     # end_time = time.clock()
     # print(end_time - t)

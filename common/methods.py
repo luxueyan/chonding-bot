@@ -7,11 +7,17 @@
 import requests
 import webbrowser
 import urllib.parse
+from common.rabbitmq import *
+
+publisher = Publisher('127.0.0.1')
+publisher.connect()
+
 
 def open_webbrowser(question):
     webbrowser.open('https://baidu.com/s?wd=' + urllib.parse.quote(question))
 
-def open_webbrowser_count(question,choices):
+
+def open_webbrowser_count(question, choices):
     print('\n-- 方法2： 题目+选项搜索结果计数法 --\n')
     print('Question: ' + question)
     if '不是' in question:
@@ -20,7 +26,8 @@ def open_webbrowser_count(question,choices):
     counts = []
     for i in range(len(choices)):
         # 请求
-        req = requests.get(url='http://www.baidu.com/s', params={'wd': question + choices[i]})
+        req = requests.get(url='http://www.baidu.com/s',
+                           params={'wd': question + choices[i]})
         content = req.text
         index = content.find('百度为您找到相关结果约') + 11
         content = content[index:]
@@ -29,21 +36,26 @@ def open_webbrowser_count(question,choices):
         counts.append(count)
         #print(choices[i] + " : " + count)
     output(choices, counts)
+    publisher.publish({'way': 2, 'question': question, 'choices': choices, 'counts': counts})
 
-def count_base(question,choices):
+def count_base(question, choices):
+    global publisher
     print('\n-- 方法3： 题目搜索结果包含选项词频计数法 --\n')
     # 请求
-    req = requests.get(url='http://www.baidu.com/s', params={'wd':question})
+    req = requests.get(url='http://www.baidu.com/s', params={'wd': question})
     content = req.text
-    #print(content)
+    # print(content)
     counts = []
-    print('Question: '+question)
+    print('Question: ' + question)
     if '不是' in question:
         print('**请注意此题为否定题,选计数最少的**')
     for i in range(len(choices)):
         counts.append(content.count(choices[i]))
         #print(choices[i] + " : " + str(counts[i]))
     output(choices, counts)
+
+    publisher.publish({'way': 3, 'question': question, 'choices': choices, 'counts': counts})
+
 
 def output(choices, counts):
     counts = list(map(int, counts))
@@ -62,10 +74,12 @@ def output(choices, counts):
     for i in range(len(choices)):
         if i == index_max:
             # 绿色为计数最高的答案
-            print("\033[1;32m{0:^10} {1:^10}\033[0m".format(choices[i], counts[i]))
+            print("\033[1;32m{0:^10} {1:^10}\033[0m".format(
+                choices[i], counts[i]))
         elif i == index_min:
             # 红色为计数最低的答案
-            print("\033[0;31m{0:^10}{1:^10}\033[0m".format(choices[i], counts[i]))
+            print("\033[0;31m{0:^10}{1:^10}\033[0m".format(
+                choices[i], counts[i]))
         else:
             print("{0:^10} {1:^10}".format(choices[i], counts[i]))
 
@@ -82,5 +96,3 @@ if __name__ == '__main__':
     question = '新装修的房子通常哪种化学物质含量会比较高?'
     choices = ['甲醛', '苯', '甲醇']
     run_algorithm(1, question, choices)
-
-
