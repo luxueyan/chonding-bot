@@ -1,3 +1,4 @@
+> Forked from [https://github.com/Skyexu/TopSup](https://github.com/Skyexu/TopSup)
 
 # 答题辅助
 这两天冲顶大会直播答题 APP 突然火了起来，萌生了使用截图，文字识别，搜索来做个小辅助的想法。使用文字识别搜索，只能增加准确率，保证不了全对。
